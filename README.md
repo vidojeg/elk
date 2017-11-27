@@ -12,11 +12,11 @@ Example Playbook
 ----------------
 Test playbook:
 ```
-	---
-	- hosts: Test
-	  remote_user: root
-	  roles:
-	    - role: ./tradecore-elk
+---
+- hosts: Test
+    remote_user: root
+    roles:
+    - role: ./tradecore-elk
 ```
 
 License
