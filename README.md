@@ -1,6 +1,5 @@
-Role Name
-=========
 The Elastic Stack - ELK
+=========
 Requirements
 ------------
 	Oracle Java JDK 1.8
