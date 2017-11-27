@@ -1,0 +1,203 @@
+---
+# tasks file for tradecore-elk
+
+#
+# JAVA install
+#
+
+- name: Install java 8 preresequesits
+  apt:
+    name: '{{ item }}'
+  with_items:
+    - apt-transport-https
+    - software-properties-common
+    - wget
+
+- name: Add Java JDK repo
+  apt_repository:
+    repo: 'ppa:webupd8team/java'
+
+#accept licence
+- name: Agree to oracle license
+  become_user: root
+  become: yes
+  debconf: 
+    name: 'oracle-java8-installer' 
+    question: 'shared/accepted-oracle-license-v1-1' 
+    vtype: 'select' 
+    value: 'true'
+
+#install java
+- name: Install Java JDK
+  become_user: root
+  become: yes
+  apt: 
+    name: oracle-java8-installer
+    state: present 
+    install_recommends: yes
+#
+# ES install
+#
+
+#add key
+- name: Add ES GPG-KEY
+  become: yes
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  tags:
+    - es
+
+# add repo
+- name: Add ES repo
+  become: yes
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+    state: present
+    filename: /etc/apt/sources.list.d/elastic-5.x.list
+    update_cache: yes
+  tags:
+    - es
+
+# install es
+- name: Install ES
+  become: yes
+  apt:
+    name: elasticsearch
+    state: present
+    update_cache: yes
+  tags:
+    - es
+
+#config es
+- name: Config ES
+  become: yes
+  template:
+    src: templates/es.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    mode: 644
+  notify: ES Restart
+  tags:
+    - es
+
+- name: Enable ES service
+  become: yes
+  service:
+    name: elasticsearch
+    enabled: yes
+  tags:
+    - es
+
+#
+# Kibana install
+#
+
+# install kibana
+- name: Install Kibana
+  become: yes
+  apt: 
+    name: kibana
+    state: latest
+    update_cache: yes
+  tags:
+    - kibana
+
+# config kibana
+- name: Config Kibana
+  become: yes
+  template:
+    src: templates/kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    mode: 0644
+  tags:
+    - kibana
+
+- name: Enable Kibana services
+  become: yes
+  service:
+    name: kibana
+    enabled: yes
+  tags:
+    - kibana
+
+#
+# Logstash Install
+#
+
+- name: Install Logstash
+  become: yes
+  apt:
+    name: logstash
+    state: present
+  tags:
+    - logstash
+
+- name: Enable Logstash services
+  become: yes
+  service:
+    name: logstash
+    enabled: yes
+  tags:
+    - logstash
+
+#
+# Install Nginx
+#
+
+- name: Install Nginx
+  become: yes
+  apt:
+    name: nginx
+    state: latest
+  tags:
+    - nginx
+
+# config nginx
+ 
+- name: Configure Nginx
+  become: yes
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/sites-available/kibana
+    mode: 0644
+  tags:
+    - nginx
+
+# linking new conf
+- name: Config vhost for Nginx
+  become: yes
+  file:
+    src: /etc/nginx/sites-available/kibana
+    dest: /etc/nginx/sites-enabled/kibana
+    state: link
+  tags:
+    - nginx
+  notify: Restart Nginx
+
+- name: Enable Nginx services
+  become: yes
+  service:
+    name: nginx
+    enabled: yes
+  tags:
+    - nginx
+
+#
+#       Topbeat installation
+#
+
+- name: Install TopBeat
+  become: yes
+  apt:
+    deb: https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb
+  tags:
+    - topbeat
+  notify: Restart TopBeat
+
+- name: Enable TopBeat services
+  become: yes
+  service:
+    name: topbeat
+    enabled: yes
+  tags:
+    - topbeat

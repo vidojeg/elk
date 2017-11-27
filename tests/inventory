@@ -1,0 +1,8 @@
+#
+#	HOSTS
+#
+
+Test	ansible_ssh_host=10.0.0.248 ansible_user=ubuntu
+
+
+

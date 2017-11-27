@@ -1,0 +1,5 @@
+---
+# defaults file for tradecore-elk
+elasticsearch_host: 10.0.0.248
+elasticsearch_port: 9200
+kibana_port: 5601

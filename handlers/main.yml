@@ -1,0 +1,27 @@
+---
+# handlers file for tradecore-elk
+
+- name: ES Restart
+  become: yes
+  service:
+    name: elasticsearch
+    state: restarted
+
+- name: Restart Nginx
+  become: yes
+  service:
+    name: nginx
+    state: restarted
+
+- name: Kibana restart
+  become: yes
+  service:
+    name: kibana
+    state: restarted
+
+- name: Restart TopBeat
+  become: yes
+  service:
+    name: topbeat
+    state: restarted
+
