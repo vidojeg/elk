@@ -26,5 +26,4 @@ BSD
 
 Author Information
 ------------------
-@vidoje.gavrilovic
-[![Ansible Galaxy]vidoje.gavrilovic]
+@vidojeg
